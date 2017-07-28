@@ -8,6 +8,7 @@ all: install build test
 install:
 	go get github.com/golang/lint/golint
 	go get golang.org/x/tools/cmd/cover
+	docker pull alpine
 
 build:
 	go build ${PKG}
@@ -42,3 +43,19 @@ cpuprof:
 
 memprof:
 	go test -memprofile mem-${TIMESTAMP}.prof ${PKG}
+
+build-pub:
+	cd pub
+	docker build -t pub .
+
+build-sub:
+	cd sub
+	docker build -t sub .
+
+run-pub:
+	cd pub
+	docker run --publish 6060:8080 --name publisher --rm pub
+
+run-sub:
+	cd sub
+	docker run --publish 6060:8080 --name subscriber --rm sub
