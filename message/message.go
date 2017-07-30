@@ -8,8 +8,8 @@ import (
 
 // Message ...
 type Message struct {
-	Header
-	Body
+	Header Header
+	Body   Body
 }
 
 // Header ...
@@ -26,8 +26,8 @@ type Body struct {
 	Body   []byte    `json:"body"`
 }
 
-// Raw ...
-func (m *Message) Raw() ([]byte, error) {
+// MarshalJSON ...
+func (m *Message) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
 	if err := enc.Encode(m); err != nil {
@@ -36,14 +36,52 @@ func (m *Message) Raw() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// FromRaw ...
-func FromRaw(raw []byte) (*Message, error) {
+// UnmarshalJSON ...
+func (m *Message) UnmarshalJSON(raw []byte) error {
 	buf := bytes.NewBuffer(raw)
 	dec := gob.NewDecoder(buf)
-	var data Message
-	if err := dec.Decode(data); err != nil {
+	if err := dec.Decode(&m); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON ...
+func (h *Header) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	if err := enc.Encode(h); err != nil {
 		return nil, err
 	}
-	return &data, nil
+	return buf.Bytes(), nil
+}
 
+// UnmarshalJSON ...
+func (h *Header) UnmarshalJSON(raw []byte) error {
+	buf := bytes.NewBuffer(raw)
+	dec := gob.NewDecoder(buf)
+	if err := dec.Decode(&h); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON ...
+func (b *Body) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	if err := enc.Encode(b); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+// UnmarshalJSON ...
+func (b *Body) UnmarshalJSON(raw []byte) error {
+	buf := bytes.NewBuffer(raw)
+	dec := gob.NewDecoder(buf)
+	if err := dec.Decode(&b); err != nil {
+		return err
+	}
+	return nil
 }
