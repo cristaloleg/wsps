@@ -13,7 +13,7 @@ const defaultReadLimit = 1024
 // Client ...
 type Client struct {
 	conn        *websocket.Conn
-	inCh        chan message.Message
+	ch          chan message.Message
 	done        chan struct{}
 	isListening bool
 }
@@ -22,7 +22,7 @@ type Client struct {
 func New(connection *websocket.Conn) *Client {
 	c := &Client{
 		conn: connection,
-		inCh: make(chan message.Message, 1024),
+		ch:   make(chan message.Message, 1024),
 		done: make(chan struct{}),
 	}
 	c.conn.SetReadLimit(defaultReadLimit)
@@ -32,16 +32,16 @@ func New(connection *websocket.Conn) *Client {
 // Close ...
 func (c *Client) Close() {
 	c.done <- struct{}{}
-	close(c.inCh)
+	close(c.ch)
 
 	if err := c.conn.Close(); err != nil {
 		log.Println(err)
 	}
 }
 
-// Write ...
-func (c *Client) Write(m message.Message) {
-	c.inCh <- m
+// Send ...
+func (c *Client) Send(m message.Message) {
+	c.ch <- m
 }
 
 // Listen ...
@@ -53,7 +53,7 @@ func (c *Client) Listen() {
 
 	for {
 		select {
-		case m := <-c.inCh:
+		case m := <-c.ch:
 			if err := c.conn.WriteJSON(m); err != nil {
 				log.Println(err)
 			}
