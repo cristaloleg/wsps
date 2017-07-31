@@ -10,7 +10,7 @@ import (
 
 const defaultReadLimit = 1024
 
-// Client ...
+// Client is a websocket connection to the client
 type Client struct {
 	conn        *websocket.Conn
 	ch          chan message.Message
@@ -18,7 +18,7 @@ type Client struct {
 	isListening bool
 }
 
-// New ...
+// New create a new client from websocket connection
 func New(connection *websocket.Conn) *Client {
 	c := &Client{
 		conn: connection,
@@ -29,22 +29,24 @@ func New(connection *websocket.Conn) *Client {
 	return c
 }
 
-// Close ...
-func (c *Client) Close() {
+// Close stops client from receiving/sending messages
+func (c *Client) Close() error {
 	c.done <- struct{}{}
 	close(c.ch)
 
 	if err := c.conn.Close(); err != nil {
 		log.Println(err)
+		return err
 	}
+	return nil
 }
 
-// Send ...
+// Send sends a message to the client. Might be blocked
 func (c *Client) Send(m message.Message) {
 	c.ch <- m
 }
 
-// Listen ...
+// Listen listens to the incomming messages from the channel
 func (c *Client) Listen() {
 	if c.isListening {
 		return
@@ -65,23 +67,25 @@ func (c *Client) Listen() {
 	}
 }
 
-// PushTo ...
+// PushTo sends messages from the client to the given channel
 func (c *Client) PushTo(ch chan<- message.Message) {
-	for {
-		select {
-		default:
-			var msg message.Message
-			err := c.conn.ReadJSON(&msg)
-			if err == io.ErrUnexpectedEOF || websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
-				log.Println(err)
-				break
+	go func() {
+		for {
+			select {
+			default:
+				var msg message.Message
+				err := c.conn.ReadJSON(&msg)
+				if err == io.ErrUnexpectedEOF || websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
+					log.Println(err)
+					break
+				}
+
+				ch <- msg
+
+			case <-c.done:
+				close(c.done)
+				return
 			}
-
-			ch <- msg
-
-		case <-c.done:
-			close(c.done)
-			return
 		}
-	}
+	}()
 }

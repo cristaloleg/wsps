@@ -54,8 +54,8 @@ build-sub:
 
 run-pub:
 	cd pub
-	docker run --publish 6060:8080 --name publisher --rm pub
+	docker run --publish 6060:8080 --interactive --name publisher --rm pub
 
 run-sub:
 	cd sub
-	docker run --publish 6060:8080 --name subscriber --rm sub
+	docker run --publish 6060:8080 --interactive --name subscriber --rm sub
