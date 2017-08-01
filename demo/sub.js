@@ -7,7 +7,13 @@ $(function() {
     var connSub = new WebSocket('ws://localhost:3001/ws');
 
     connSub.onopen = function(e) {
-        content.attr("disabled", false);
+        content.attr("disabled", true);
+
+        var m = {
+            topic: "default",
+        };
+        console.log(JSON.stringify(m));
+        connSub.send(JSON.stringify(m));
     };
 
     connSub.onclose = function(e) { 
@@ -15,8 +21,8 @@ $(function() {
     };
 
     connSub.onmessage = function(e) {
-        if (e.data != content.val()) {
-            content.val(e.data);
-        }
+        var m = JSON.parse(e.data);
+        console.log(m);
+        content.val(content.val() + '\n' + m.body);
     };
 });
