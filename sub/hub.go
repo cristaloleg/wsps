@@ -48,6 +48,8 @@ func (h *Hub) listen() {
 
 // AddClient ...
 func (h *Hub) AddClient(c *client.Client) {
+	go c.Listen()
+
 	defer h.mu.Unlock()
 	h.mu.Lock()
 	h.clients[c] = struct{}{}
