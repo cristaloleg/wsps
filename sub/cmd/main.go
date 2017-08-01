@@ -23,7 +23,8 @@ func main() {
 
 	defer s.Close()
 
-	s.Init(q,
+	s.Init(
+		q,
 		sub.WithRWBuf(1024),
 		sub.WithPort(port),
 	)
