@@ -64,6 +64,9 @@ func (p *Pub) Init(queue queue.Queue, opts ...Option) {
 	p.upgrader = websocket.Upgrader{
 		ReadBufferSize:  opt.bufSize,
 		WriteBufferSize: opt.bufSize,
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
 	}
 	p.port = opt.port
 }
@@ -106,12 +109,18 @@ func (p *Pub) Run() {
 
 func (p *Pub) wsHandler(w http.ResponseWriter, r *http.Request) {
 	ws, err := p.upgrader.Upgrade(w, r, nil)
-	log.Println("Failed to upgrade a message", err)
+	if err != nil {
+		log.Println("Failed to upgrade a message", err)
+		return
+	}
 
 	var msg message.Message
 	if err := ws.ReadJSON(&msg); err != nil {
-		err = ws.WriteMessage(websocket.TextMessage, []byte("incorrect header"))
 		log.Println(err)
+		err = ws.WriteMessage(websocket.TextMessage, []byte("incorrect message format"))
+		if err != nil {
+			log.Println(err)
+		}
 		return
 	}
 
@@ -132,7 +141,7 @@ func (p *Pub) register(name string, conn *websocket.Conn) error {
 			return err
 		}
 
-		h := NewHub(name, p.messages)
+		h = NewHub(name, p.messages)
 		p.mu.Lock()
 		p.hubs[name] = h
 		p.mu.Unlock()
