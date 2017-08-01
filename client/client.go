@@ -53,6 +53,15 @@ func (c *Client) Listen() {
 	}
 	c.isListening = true
 
+	defer func() {
+		if r := recover(); r != nil {
+			err, ok := r.(error)
+			if !ok {
+				log.Println(err)
+			}
+		}
+	}()
+
 	for {
 		select {
 		case m := <-c.ch:
@@ -69,6 +78,15 @@ func (c *Client) Listen() {
 
 // PushTo sends messages from the client to the given channel
 func (c *Client) PushTo(ch chan<- message.Message) {
+	defer func() {
+		if r := recover(); r != nil {
+			err, ok := r.(error)
+			if !ok {
+				log.Println(err)
+			}
+		}
+	}()
+
 	go func() {
 		for {
 			select {
