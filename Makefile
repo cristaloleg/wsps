@@ -8,7 +8,6 @@ all: install build test
 install:
 	go get github.com/golang/lint/golint
 	go get golang.org/x/tools/cmd/cover
-	docker pull alpine
 
 build:
 	go build ${PKG}
