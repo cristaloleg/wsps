@@ -61,6 +61,9 @@ func (s *Sub) Init(queue queue.Queue, opts ...Option) {
 	s.upgrader = websocket.Upgrader{
 		ReadBufferSize:  4096,
 		WriteBufferSize: 4096,
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
 	}
 }
 
@@ -90,7 +93,7 @@ func (s *Sub) Run() {
 
 	http.HandleFunc("/ws", s.wsHandler)
 	if err := http.ListenAndServe(":"+s.port, nil); err != nil {
-		log.Println("Server error", err)
+		failOnError(err, "server error")
 	}
 }
 
