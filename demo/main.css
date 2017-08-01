@@ -21,3 +21,19 @@ textarea {
 textarea[disabled="disabled"] {
     color: #aaa;
 }
+
+a {
+    text-align:center;
+    display:block;
+    width: 100px;
+    top: 100px;
+    margin-top: 100px;
+    margin-left: 100px;
+    align-content: center;
+    color: #fff;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    padding: 6px 12px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
