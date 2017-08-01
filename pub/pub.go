@@ -137,7 +137,7 @@ func (p *Pub) register(name string, conn *websocket.Conn) error {
 
 	if !ok {
 		if err := p.queue.Create(name); err != nil {
-			log.Println("Cannot  queue", err)
+			log.Println("Cannot create queue", err)
 			return err
 		}
 

@@ -65,6 +65,7 @@ func (s *Sub) Init(queue queue.Queue, opts ...Option) {
 			return true
 		},
 	}
+	s.port = opt.port
 }
 
 // Close ...
@@ -99,12 +100,18 @@ func (s *Sub) Run() {
 
 func (s *Sub) wsHandler(w http.ResponseWriter, r *http.Request) {
 	ws, err := s.upgrader.Upgrade(w, r, nil)
-	log.Println("Failed to upgrade a message", err)
+	if err != nil {
+		log.Println("Failed to upgrade a message", err)
+		return
+	}
 
 	var msg message.Message
 	if err := ws.ReadJSON(&msg); err != nil {
-		err = ws.WriteMessage(websocket.TextMessage, []byte("incorrect header"))
 		log.Println(err)
+		err = ws.WriteMessage(websocket.TextMessage, []byte("incorrect message format"))
+		if err != nil {
+			log.Println(err)
+		}
 		return
 	}
 
@@ -125,8 +132,8 @@ func (s *Sub) register(name string, conn *websocket.Conn) error {
 			log.Println("topic doesn't exist")
 			return err
 		}
-		h := NewHub(name, ch)
 
+		h = NewHub(name, ch)
 		s.mu.Lock()
 		s.hubs[name] = h
 		s.mu.Unlock()
