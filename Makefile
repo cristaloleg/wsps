@@ -10,8 +10,6 @@ install:
 	go get github.com/golang/lint/golint
 	go get golang.org/x/tools/cmd/cover
 	glide install
-	# go get github.com/gorilla/websocket
-	# go get github.com/streadway/amqp
 
 build:
 	go build ${PKG}
