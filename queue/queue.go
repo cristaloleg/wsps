@@ -116,7 +116,9 @@ func (q *queue) Get(name string) (<-chan message.Message, error) {
 		for {
 			select {
 			case d := <-in:
-				ch <- message.Message{Body: d.Body}
+				var msg message.Message
+				msg.Unmarshal(d.Body)
+				ch <- msg
 
 			case <-q.done:
 				return
@@ -125,32 +127,4 @@ func (q *queue) Get(name string) (<-chan message.Message, error) {
 	}(delivery)
 
 	return ch, err
-}
-
-var _ Queue = (*FakeQueue)(nil)
-
-// FakeQueue ...
-type FakeQueue struct {
-	ch chan message.Message
-}
-
-// Create ...
-func (f FakeQueue) Create(string) error {
-	return nil
-}
-
-// Publish ...
-func (f FakeQueue) Publish(msg message.Message) error {
-	f.ch <- msg
-	return nil
-}
-
-// Get ...
-func (f FakeQueue) Get(string) (<-chan message.Message, error) {
-	return f.ch, nil
-}
-
-// Close ...
-func (f FakeQueue) Close() error {
-	return nil
 }
