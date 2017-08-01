@@ -129,23 +129,28 @@ func (q *queue) Get(name string) (<-chan message.Message, error) {
 
 var _ Queue = (*FakeQueue)(nil)
 
+// FakeQueue ...
 type FakeQueue struct {
 	ch chan message.Message
 }
 
+// Create ...
 func (f FakeQueue) Create(string) error {
 	return nil
 }
 
+// Publish ...
 func (f FakeQueue) Publish(msg message.Message) error {
 	f.ch <- msg
 	return nil
 }
 
+// Get ...
 func (f FakeQueue) Get(string) (<-chan message.Message, error) {
 	return f.ch, nil
 }
 
+// Close ...
 func (f FakeQueue) Close() error {
 	return nil
 }

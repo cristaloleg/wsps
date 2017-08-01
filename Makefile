@@ -6,9 +6,12 @@ PKG = $(shell go list ./... | grep -v /vendor/)
 all: install build test
 
 install:
+	go get github.com/Masterminds/glide
 	go get github.com/golang/lint/golint
 	go get golang.org/x/tools/cmd/cover
-	docker pull alpine
+	glide install
+	# go get github.com/gorilla/websocket
+	# go get github.com/streadway/amqp
 
 build:
 	go build ${PKG}

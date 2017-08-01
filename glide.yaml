@@ -1,0 +1,4 @@
+package: github.com/cristaloleg/wsps
+import:
+- package: github.com/gorilla/websocket
+- package: github.com/streadway/amqp
