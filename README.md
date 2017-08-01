@@ -26,3 +26,24 @@ Web view:
 ```
 http://localhost:15672/#/
 ```
+
+To start a Pub:
+```
+cd pub/cmd
+go build main.go
+./main
+```
+
+To start a Sub:
+```
+cd sub/cmd
+go build main.go
+./main
+```
+
+To start a Demp:
+```
+cd demo
+go build main.go
+./main
+```
