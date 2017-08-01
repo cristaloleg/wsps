@@ -8,12 +8,12 @@ import (
 
 // Message between services
 type Message struct {
-	Type   string    `json:"type"`
-	Token  string    `json:"token"`
+	Type   string    `json:"type,omitempty"`
+	Token  string    `json:"token,omitempty"`
 	Topic  string    `json:"topic"`
 	Create time.Time `json:"created,omitempty"`
-	Author string    `json:"author"`
-	Body   []byte    `json:"body"`
+	Author string    `json:"author,omitempty"`
+	Body   string    `json:"body"`
 }
 
 // Marshal to JSON
