@@ -16,8 +16,8 @@ type Queue interface {
 }
 
 // New ...
-func New(url, port string) (Queue, error) {
-	conn, err := amqp.Dial(url + ":" + port)
+func New(url string) (Queue, error) {
+	conn, err := amqp.Dial(url)
 	if err != nil {
 		log.Fatal("Failed to connect to RabbitMQ", err)
 		return nil, err

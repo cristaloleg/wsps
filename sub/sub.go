@@ -1,26 +1,3 @@
-// func processMessages() {
-// 	messages, err := ch.Consume(
-// 		q.Name, // queue
-// 		"",     // consumer
-// 		true,   // auto-ack
-// 		false,  // exclusive
-// 		false,  // no-local
-// 		false,  // no-wait
-// 		nil,    // args
-// 	)
-// 	failOnError(err, "Failed to register a consumer")
-
-// 	for {
-// 		// msg := <-messages
-// 		for msg := range messages {
-// 				if err := client.WriteMessage(websocket.TextMessage, msg.Body); err != nil {
-// 					log.Println(err)
-// 				}
-// 			}
-// 		}
-// 	}
-// }
-
 package sub
 
 import (
@@ -45,10 +22,13 @@ type Sub struct {
 	done chan struct{}
 
 	upgrader websocket.Upgrader
+
+	port string
 }
 
 type options struct {
 	bufSize int
+	port    string
 }
 
 // Option ...
@@ -58,6 +38,13 @@ type Option func(*options)
 func WithRWBuf(size int) Option {
 	return func(o *options) {
 		o.bufSize = size
+	}
+}
+
+// WithPort ...
+func WithPort(port string) Option {
+	return func(o *options) {
+		o.port = port
 	}
 }
 
@@ -102,7 +89,7 @@ func (s *Sub) Run() {
 	}()
 
 	http.HandleFunc("/ws", s.wsHandler)
-	if err := http.ListenAndServe(":3001", nil); err != nil {
+	if err := http.ListenAndServe(":"+s.port, nil); err != nil {
 		log.Println("Server error", err)
 	}
 }

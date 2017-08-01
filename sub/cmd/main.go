@@ -13,18 +13,19 @@ var (
 )
 
 func init() {
-	flag.StringVar(&amqpURL, "url", "amqp:///", "AMQP url for the subscriber")
-	flag.StringVar(&port, "port", "3031", "Subscriber's port")
+	flag.StringVar(&amqpURL, "url", "amqp://127.0.0.1:5672", "AMQP url for the publisher")
+	flag.StringVar(&port, "port", "3001", "Subscriber's port")
 }
 
 func main() {
 	s := sub.Sub{}
-	q, _ := queue.New(amqpURL, port)
+	q, _ := queue.New(amqpURL)
 
 	defer s.Close()
 
 	s.Init(q,
 		sub.WithRWBuf(1024),
+		sub.WithPort(port),
 	)
 	s.Run()
 }

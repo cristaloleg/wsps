@@ -15,6 +15,7 @@ import (
 
 type options struct {
 	bufSize int
+	port    string
 }
 
 // Option ...
@@ -24,6 +25,13 @@ type Option func(*options)
 func WithRWBuf(size int) Option {
 	return func(o *options) {
 		o.bufSize = size
+	}
+}
+
+// WithPort ...
+func WithPort(port string) Option {
+	return func(o *options) {
+		o.port = port
 	}
 }
 
@@ -38,6 +46,8 @@ type Pub struct {
 	done     chan struct{}
 
 	upgrader websocket.Upgrader
+
+	port string
 }
 
 // Init ...
@@ -55,6 +65,7 @@ func (p *Pub) Init(queue queue.Queue, opts ...Option) {
 		ReadBufferSize:  opt.bufSize,
 		WriteBufferSize: opt.bufSize,
 	}
+	p.port = opt.port
 }
 
 // Close ...
@@ -88,14 +99,14 @@ func (p *Pub) Run() {
 	}()
 
 	http.HandleFunc("/ws", p.wsHandler)
-	if err := http.ListenAndServe(":3000", nil); err != nil {
+	if err := http.ListenAndServe(":"+p.port, nil); err != nil {
 		failOnError(err, "server error")
 	}
 }
 
 func (p *Pub) wsHandler(w http.ResponseWriter, r *http.Request) {
 	ws, err := p.upgrader.Upgrade(w, r, nil)
-	failOnError(err, "Failed to upgrade a message")
+	log.Println("Failed to upgrade a message", err)
 
 	var msg message.Message
 	if err := ws.ReadJSON(&msg); err != nil {
